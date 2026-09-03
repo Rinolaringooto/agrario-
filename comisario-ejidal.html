@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Comisario Ejidal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap');
+
+  :root {
+    --verde: #2d6a4f;
+    --verde-claro: #40916c;
+    --tierra: #bc6c25;
+    --crema: #fefae0;
+    --rojo: #c1121f;
+    --azul: #1d3557;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #1b4332, #081c15);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+  }
+
+  #game {
+    width: 100%;
+    max-width: 900px;
+    background: #0d1b12;
+    border: 4px solid var(--verde);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(45,106,79,0.6);
+  }
+
+  header {
+    background: var(--verde);
+    padding: 18px 20px;
+    text-align: center;
+    border-bottom: 3px solid #1b4332;
+  }
+
+  header h1 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+
+  .stats {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: #14261a;
+    font-size: 0.95rem;
+  }
+
+  .hearts { color: #ff6b6b; font-size: 1.3rem; letter-spacing: 3px; }
+
+  .screen { display: none; padding: 25px; min-height: 480px; }
+  .screen.active { display: block; }
+
+  /* INTRO */
+  #intro { text-align: center; }
+  #intro h2 { font-size: 1.8rem; margin-bottom: 15px; color: #95d5b2; }
+  #intro p { line-height: 1.6; margin-bottom: 12px; color: #d8f3dc; }
+  .btn {
+    display: inline-block;
+    background: var(--tierra);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: #e09f3e; transform: scale(1.05); }
+  .btn-verde { background: var(--verde-claro); }
+  .btn-verde:hover { background: #52b788; }
+  .btn-rojo { background: var(--rojo); }
+  .btn-rojo:hover { background: #e63946; }
+
+  /* MAPA */
+  #map h2 { text-align: center; margin-bottom: 20px; color: #95d5b2; }
+  .map-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .zone {
+    background: #1b4332;
+    border: 2px solid var(--verde-claro);
+    border-radius: 12px;
+    padding: 18px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+  }
+  .zone:hover { background: #2d6a4f; transform: translateY(-4px); }
+  .zone.disabled { opacity: 0.4; pointer-events: none; }
+  .zone .emoji { font-size: 2rem; display: block; margin-bottom: 6px; }
+
+  /* ESCENARIO */
+  #scenario .character {
+    background: #1b4332;
+    border-left: 5px solid var(--tierra);
+    padding: 16px;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 18px;
+    font-style: italic;
+  }
+  #scenario .data {
+    background: #14261a;
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  #scenario .data strong { color: #95d5b2; }
+  .decision-btns {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* RESULTADO */
+  #result .dictamen {
+    background: #1b4332;
+    border: 2px solid var(--verde-claro);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .correcto { color: #52b788; font-weight: 700; font-size: 1.3rem; }
+  .incorrecto { color: #e63946; font-weight: 700; font-size: 1.3rem; }
+  .fundamento {
+    margin-top: 12px;
+    padding: 12px;
+    background: #0d1b12;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #d8f3dc;
+  }
+
+  /* FINAL */
+  #final { text-align: center; }
+  #final h2 { font-size: 2rem; margin-bottom: 15px; }
+  .trophy { font-size: 4rem; margin: 20px 0; }
+
+  footer {
+    text-align: center;
+    padding: 10px;
+    font-size: 0.8rem;
+    color: #95d5b2;
+    background: #0a160e;
+  }
+</style>
+</head>
+<body>
+<div id="game">
+  <header>
+    <h1>🌾 EL COMISARIO EJIDAL ⚖️</h1>
+  </header>
+
+  <div class="stats">
+    <div>❤️ <span id="lives">3</span></div>
+    <div>Aciertos: <span id="score">0</span>/3</div>
+    <div>Caso <span id="caseNum">0</span>/3</div>
+  </div>
+
+  <!-- INTRO -->
+  <div id="intro" class="screen active">
+    <h2>¡Bienvenido, Comisario!</h2>
+    <p>Tu misión es recorrer el territorio y determinar qué propiedades pueden ser afectadas por <strong>dotación de tierras</strong> y cuáles están protegidas como <strong>bienes no afectables</strong>.</p>
+    <p>Debes obtener <strong>3 decisiones correctas</strong>. Cada error te cuesta un corazón.</p>
+    <p style="margin-top:18px; color:#95d5b2;">Basado en la columna de Bienes No Afectables (Ley Federal de Reforma Agraria)</p>
+    <button class="btn" onclick="startGame()">COMENZAR MISIÓN</button>
+  </div>
+
+  <!-- MAPA -->
+  <div id="map" class="screen">
+    <h2>🗺️ Elige una ubicación del territorio</h2>
+    <div class="map-grid" id="mapGrid"></div>
+  </div>
+
+  <!-- ESCENARIO -->
+  <div id="scenario" class="screen">
+    <div class="character" id="character"></div>
+    <div class="data" id="data"></div>
+    <h3 style="text-align:center; margin-bottom:15px;">⚖️ DECISIÓN DEL COMISARIO</h3>
+    <div class="decision-btns">
+      <button class="btn btn-rojo" onclick="answer(true)">🟥 SÍ, ES AFECTABLE</button>
+      <button class="btn btn-verde" onclick="answer(false)">🟩 NO, ES INAFECTABLE</button>
+    </div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div id="result" class="screen">
+    <div class="dictamen">
+      <div id="resultTitle"></div>
+      <p id="resultMsg" style="margin:12px 0;"></p>
+      <div class="fundamento" id="fundamento"></div>
+    </div>
+    <div style="text-align:center;">
+      <button class="btn" id="nextBtn" onclick="nextCase()">CONTINUAR</button>
+    </div>
+  </div>
+
+  <!-- FINAL -->
+  <div id="final" class="screen">
+    <div class="trophy" id="trophy"></div>
+    <h2 id="finalTitle"></h2>
+    <p id="finalMsg"></p>
+    <button class="btn" onclick="startGame()">JUGAR DE NUEVO</button>
+  </div>
+
+  <footer>Juego educativo • Bienes No Afectables • Reforma Agraria</footer>
+</div>
+
+<script>
+// ===================== BANCO DE ESCENARIOS =====================
+const scenarios = [
+  {
+    id: 1,
+    name: "Rancho El Mezquite",
+    emoji: "🌾",
+    character: "👨‍🌾 Propietario: “Comisario, este rancho tiene 80 hectáreas de tierra de riego de primera calidad y está actualmente en explotación.”",
+    data: "<strong>Superficie:</strong> 80 ha de riego de primera<br><strong>Estado:</strong> En explotación<br><strong>Cultivo:</strong> General",
+    isAfectable: false,
+    explanation: "Correcto. Está dentro del límite de 100 hectáreas de riego o humedad de primera y se encuentra en explotación.",
+    foundation: "I.- Cien hectáreas de riego o humedad de primera..."
+  },
+  {
+    id: 2,
+    name: "Rancho Los Laureles",
+    emoji: "🌾",
+    character: "👨‍🌾 Propietario: “Este predio tiene 120 hectáreas de riego de primera calidad y está en plena producción.”",
+    data: "<strong>Superficie:</strong> 120 ha de riego de primera<br><strong>Estado:</strong> En explotación",
+    isAfectable: true,
+    explanation: "Correcto. Excede el límite de 100 hectáreas de riego o humedad de primera. Por tanto es afectable.",
+    foundation: "I.- Cien hectáreas de riego o humedad de primera..."
+  },
+  {
+    id: 3,
+    name: "Algodonera San José",
+    emoji: "🌱",
+    character: "👨‍🌾 “Comisario, cultivamos algodón en 140 hectáreas con riego por sistema de bombeo.”",
+    data: "<strong>Superficie:</strong> 140 ha<br><strong>Cultivo:</strong> Algodón<br><strong>Riego:</strong> Sistema de bombeo<br><strong>Estado:</strong> En explotación",
+    isAfectable: false,
+    explanation: "Correcto. El límite para algodón con riego de avenida fluvial o bombeo es de hasta 150 hectáreas.",
+    foundation: "II.- Hasta ciento cincuenta hectáreas dedicadas al cultivo de algodón, si reciben riego de avenida fluvial o por sistema de bombeo."
+  },
+  {
+    id: 4,
+    name: "Algodonera El Bravo",
+    emoji: "🌱",
+    character: "👨‍🌾 “Tenemos 165 hectáreas de algodón con riego por bombeo.”",
+    data: "<strong>Superficie:</strong> 165 ha<br><strong>Cultivo:</strong> Algodón<br><strong>Riego:</strong> Bombeo",
+    isAfectable: true,
+    explanation: "Correcto. Excede el límite de 150 hectáreas permitido para el cultivo de algodón.",
+    foundation: "II.- Hasta ciento cincuenta hectáreas dedicadas al cultivo de algodón..."
+  },
+  {
+    id: 5,
+    name: "Finca La Esperanza",
+    emoji: "🍌",
+    character: "👩‍🌾 “Esta finca tiene 280 hectáreas dedicadas a árboles frutales y está en explotación.”",
+    data: "<strong>Superficie:</strong> 280 ha<br><strong>Cultivo:</strong> Árboles frutales<br><strong>Estado:</strong> En explotación",
+    isAfectable: false,
+    explanation: "Correcto. El límite para árboles frutales y cultivos especiales es de hasta 300 hectáreas.",
+    foundation: "III.- Hasta trescientas hectáreas en explotación, cuando se destinen al cultivo de plátano, caña de azúcar, café, henequén, hule, cocotero, vid, olivo, quina, vainilla, cacao o árboles frutales."
+  },
+  {
+    id: 6,
+    name: "Finca El Paraíso",
+    emoji: "🍌",
+    character: "👩‍🌾 “Cultivamos plátano y café en 320 hectáreas.”",
+    data: "<strong>Superficie:</strong> 320 ha<br><strong>Cultivo:</strong> Plátano y café",
+    isAfectable: true,
+    explanation: "Correcto. Excede el límite de 300 hectáreas para cultivos especiales.",
+    foundation: "III.- Hasta trescientas hectáreas en explotación..."
+  },
+  {
+    id: 7,
+    name: "Rancho El Ganadero",
+    emoji: "🐄",
+    character: "👨‍🌾 “Este rancho tiene la superficie necesaria para mantener 480 cabezas de ganado mayor.”",
+    data: "<strong>Capacidad:</strong> 480 cabezas de ganado mayor<br><strong>Estado:</strong> En explotación",
+    isAfectable: false,
+    explanation: "Correcto. El límite es hasta 500 cabezas de ganado mayor o su equivalencia en ganado menor.",
+    foundation: "IV.- La superficie que no exceda de la necesaria para mantener hasta quinientas cabezas de ganado mayor o su equivalencia de ganado menor..."
+  },
+  {
+    id: 8,
+    name: "Rancho Las Tres Cruces",
+    emoji: "🐄",
+    character: "👨‍🌾 “Tenemos capacidad para 530 cabezas de ganado mayor.”",
+    data: "<strong>Capacidad:</strong> 530 cabezas de ganado mayor",
+    isAfectable: true,
+    explanation: "Correcto. Excede el límite de 500 cabezas de ganado mayor.",
+    foundation: "IV.- La superficie que no exceda de la necesaria para mantener hasta quinientas cabezas..."
+  },
+  {
+    id: 9,
+    name: "Reserva La Sierra",
+    emoji: "🌳",
+    character: "🌲 Guardabosques: “Este terreno pertenece a la propiedad nacional y se encuentra sujeto a un proceso de reforestación conforme a la legislación forestal.”",
+    data: "<strong>Tipo:</strong> Propiedad nacional<br><strong>Situación:</strong> Proceso de reforestación",
+    isAfectable: false,
+    explanation: "Correcto. Las superficies de propiedad nacional sujetas a proceso de reforestación son inafectables.",
+    foundation: "Las superficies de propiedad nacional sujetas a proceso de reforestación, conforme a la Ley o reglamentos forestales."
+  },
+  {
+    id: 10,
+    name: "Parque Nacional El Coyote",
+    emoji: "🏞️",
+    character: "👮 Guardaparques: “Comisario, usted se encuentra dentro de un Parque Nacional.”",
+    data: "<strong>Tipo:</strong> Parque Nacional",
+    isAfectable: false,
+    explanation: "Correcto. Los parques nacionales y las zonas protectoras son inafectables.",
+    foundation: "Los parques nacionales y las zonas protectoras."
+  },
+  {
+    id: 11,
+    name: "Campo Experimental",
+    emoji: "🔬",
+    character: "🧑‍🔬 Investigador: “Estas instalaciones pertenecen a un Instituto Nacional y se utilizan exclusivamente para investigación y experimentación agrícola.”",
+    data: "<strong>Uso:</strong> Investigación y experimentación<br><strong>Institución:</strong> Instituto Nacional",
+    isAfectable: false,
+    explanation: "Correcto. Las extensiones requeridas para campos de investigación de Institutos Nacionales y Escuelas Técnicas Agropecuarias oficiales son inafectables.",
+    foundation: "Las extensiones que se requieren para los campos de investigación y experimentación de los Institutos Nacionales..."
+  },
+  {
+    id: 12,
+    name: "Río Grande",
+    emoji: "💧",
+    character: "🗺️ Técnico: “Esta zona corresponde al cauce de una corriente. Forma parte de las zonas federales y pertenece a la Nación.”",
+    data: "<strong>Tipo:</strong> Cauce de corriente / Zona federal<br><strong>Propiedad:</strong> Nación",
+    isAfectable: false,
+    explanation: "Correcto. Los cauces de las corrientes, los vasos y las zonas federales propiedad de la Nación son inafectables.",
+    foundation: "Los cauces de las corrientes, los vasos y las zonas federales, propiedad de la Nación."
+  },
+  {
+    id: 13,
+    name: "Rancho Abandonado",
+    emoji: "⏳",
+    character: "👨‍🌾 “La propiedad lleva tres años consecutivos sin explotación y el propietario no acredita ninguna causa de fuerza mayor.”",
+    data: "<strong>Tiempo sin explotación:</strong> 3 años consecutivos<br><strong>Fuerza mayor:</strong> No acreditada",
+    isAfectable: true,
+    explanation: "Correcto. Para conservar la calidad de inafectable no puede permanecer sin explotación más de dos años consecutivos, salvo fuerza mayor.",
+    foundation: "Para conservar la calidad de inafectable, la propiedad agrícola o ganadera no podrá permanecer sin explotación por más de dos años consecutivos, a menos que existan causas de fuerza mayor."
+  },
+  {
+    id: 14,
+    name: "Rancho La Sequía",
+    emoji: "⏳",
+    character: "👨‍🌾 “Llevamos 18 meses sin cultivar por una sequía extrema declarada oficialmente como fuerza mayor.”",
+    data: "<strong>Tiempo sin explotación:</strong> 18 meses<br><strong>Causa:</strong> Fuerza mayor (sequía oficial)",
+    isAfectable: false,
+    explanation: "Correcto. Aunque lleva tiempo sin explotación, existe causa de fuerza mayor acreditada, por lo que conserva su calidad de inafectable.",
+    foundation: "...a menos que existan causas de fuerza mayor que lo impidan."
+  },
+  {
+    id: 15,
+    name: "Finca Mixta El Dorado",
+    emoji: "🍌",
+    character: "👩‍🌾 “Tenemos 290 hectáreas de caña de azúcar en explotación.”",
+    data: "<strong>Superficie:</strong> 290 ha<br><strong>Cultivo:</strong> Caña de azúcar<br><strong>Estado:</strong> En explotación",
+    isAfectable: false,
+    explanation: "Correcto. La caña de azúcar es uno de los cultivos especiales cuyo límite es de 300 hectáreas.",
+    foundation: "III.- Hasta trescientas hectáreas... plátano, caña de azúcar, café..."
+  },
+  {
+    id: 16,
+    name: "Zona Protectora El Águila",
+    emoji: "🦅",
+    character: "🌲 “Este predio está declarado como Zona Protectora por la autoridad ambiental.”",
+    data: "<strong>Tipo:</strong> Zona Protectora",
+    isAfectable: false,
+    explanation: "Correcto. Las zonas protectoras son expresamente inafectables junto con los parques nacionales.",
+    foundation: "Los parques nacionales y las zonas protectoras."
+  }
+];
+
+// ===================== ESTADO DEL JUEGO =====================
+let lives = 3;
+let score = 0;
+let currentCase = 0;
+let selectedScenarios = [];
+let currentScenario = null;
+let answeredZones = new Set();
+
+function shuffle(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startGame() {
+  lives = 3;
+  score = 0;
+  currentCase = 0;
+  answeredZones.clear();
+  selectedScenarios = shuffle(scenarios).slice(0, 3);
+  updateStats();
+  showScreen('map');
+  renderMap();
+}
+
+function updateStats() {
+  document.getElementById('lives').textContent = '❤️'.repeat(lives) + '🖤'.repeat(3 - lives);
+  document.getElementById('score').textContent = score;
+  document.getElementById('caseNum').textContent = currentCase;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderMap() {
+  const grid = document.getElementById('mapGrid');
+  grid.innerHTML = '';
+  selectedScenarios.forEach((sc, idx) => {
+    const div = document.createElement('div');
+    div.className = 'zone' + (answeredZones.has(sc.id) ? ' disabled' : '');
+    div.innerHTML = `<span class="emoji">\( {sc.emoji}</span> \){sc.name}`;
+    div.onclick = () => openScenario(idx);
+    grid.appendChild(div);
+  });
+}
+
+function openScenario(idx) {
+  currentScenario = selectedScenarios[idx];
+  if (answeredZones.has(currentScenario.id)) return;
+
+  document.getElementById('character').textContent = currentScenario.character;
+  document.getElementById('data').innerHTML = currentScenario.data;
+  showScreen('scenario');
+}
+
+function answer(playerSaysAfectable) {
+  const correct = playerSaysAfectable === currentScenario.isAfectable;
+  answeredZones.add(currentScenario.id);
+  currentCase++;
+
+  const title = document.getElementById('resultTitle');
+  const msg = document.getElementById('resultMsg');
+  const fund = document.getElementById('fundamento');
+
+  if (correct) {
+    score++;
+    title.innerHTML = '<span class="correcto">✅ DECISIÓN CORRECTA</span>';
+    msg.textContent = currentScenario.explanation;
+  } else {
+    lives--;
+    title.innerHTML = '<span class="incorrecto">❌ DECISIÓN INCORRECTA</span>';
+    msg.textContent = currentScenario.isAfectable
+      ? "Debía considerarse AFECTABLE. " + currentScenario.explanation.replace("Correcto. ", "")
+      : "Debía considerarse INAFECTABLE. " + currentScenario.explanation.replace("Correcto. ", "");
+  }
+
+  fund.innerHTML = `<strong>📜 Fundamento:</strong><br>${currentScenario.foundation}`;
+  updateStats();
+
+  // Preparar botón
+  const nextBtn = document.getElementById('nextBtn');
+  if (score >= 3 || lives <= 0 || currentCase >= 3) {
+    nextBtn.textContent = "VER RESULTADO FINAL";
+    nextBtn.onclick = endGame;
+  } else {
+    nextBtn.textContent = "CONTINUAR RECORRIDO";
+    nextBtn.onclick = () => {
+      showScreen('map');
+      renderMap();
+    };
+  }
+
+  showScreen('result');
+}
+
+function endGame() {
+  const trophy = document.getElementById('trophy');
+  const title = document.getElementById('finalTitle');
+  const msg = document.getElementById('finalMsg');
+
+  if (score >= 3) {
+    trophy.textContent = "🏆";
+    title.textContent = "¡MISIÓN CUMPLIDA!";
+    title.style.color = "#52b788";
+    msg.innerHTML = `Has analizado correctamente el territorio.<br><br>
+      ⚖️ <strong>${score}/3</strong> decisiones correctas<br>
+      ❤️ Corazones restantes: ${lives}<br><br>
+      ¡Felicidades, Comisario Ejidal!`;
+  } else {
+    trophy.textContent = "😓";
+    title.textContent = "MISIÓN FALLIDA";
+    title.style.color = "#e63946";
+    msg.innerHTML = `No lograste las 3 decisiones correctas.<br><br>
+      Aciertos: <strong>${score}/3</strong><br>
+      Revisa de nuevo las reglas de los bienes no afectables e inténtalo otra vez.`;
+  }
+  showScreen('final');
+}
+</script>
+</body>
+</html>
