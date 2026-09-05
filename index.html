@@ -65,15 +65,6 @@
   }
 
   .streak-stars { font-size: 1.4rem; letter-spacing: 4px; }
-  .sound-toggle {
-    background: none;
-    border: 1px solid var(--verde-claro);
-    color: #d8f3dc;
-    border-radius: 6px;
-    padding: 4px 10px;
-    cursor: pointer;
-    font-size: 0.85rem;
-  }
 
   .screen { display: none; padding: 25px; min-height: 480px; position: relative; }
   .screen.active { display: block; }
@@ -335,9 +326,8 @@
 </div>
 
 <script>
-// ===================== BANCO DE ESCENARIOS (solo columna Bienes No Afectables) =====================
+// ===================== BANCO DE ESCENARIOS =====================
 const scenarios = [
-  // --- Fracción I: 100 ha riego o humedad de primera ---
   {
     id: 1, name: "Paraje Los Álamos", emoji: "🌾",
     character: "👨‍🌾 “Buenas, comisario. Este pedazo de tierra lo hemos trabajado toda la vida, de riego, de la buena. No es gran cosa, unas 85 hectáreas, pero ahí la llevamos, sembrando siempre.”",
@@ -362,8 +352,6 @@ const scenarios = [
     explanation: "No excede el límite de 100 hectáreas: cumple exactamente el máximo permitido por la fracción I.",
     foundation: "Fracción I: Cien hectáreas de riego o humedad de primera, o su equivalencia."
   },
-
-  // --- Fracción II: hasta 150 ha algodón con riego de avenida fluvial o bombeo ---
   {
     id: 4, name: "Vega del Sauce", emoji: "🌱",
     character: "👨‍🌾 “Aquí sembramos algodón, comisario, unas 110 hectáreas, con agua que sacamos por bombeo. Nos ha ido bien este año.”",
@@ -380,8 +368,6 @@ const scenarios = [
     explanation: "Excede el límite de 150 hectáreas permitido para el cultivo de algodón con riego de avenida fluvial o bombeo.",
     foundation: "Fracción II: Hasta ciento cincuenta hectáreas de algodón, con riego de avenida fluvial o por sistema de bombeo."
   },
-
-  // --- Fracción III: hasta 300 ha de cultivos especiales ---
   {
     id: 6, name: "Huerta Buenavista", emoji: "☕",
     character: "👩‍🌾 “Comisario, aquí todo es cafetal, 250 hectáreas que hemos cuidado con esmero por generaciones.”",
@@ -414,8 +400,6 @@ const scenarios = [
     explanation: "Excede, aunque sea por poco, el límite de 300 hectáreas fijado para los cultivos especiales.",
     foundation: "Fracción III: Hasta trescientas hectáreas dedicadas a plátano, caña de azúcar..."
   },
-
-  // --- Fracción IV: hasta 500 cabezas de ganado mayor o su equivalencia ---
   {
     id: 10, name: "Potrero El Ocote", emoji: "🐄",
     character: "🤠 “Comisario, este potrero aguanta unas 420 cabezas de ganado mayor, ni una más porque el pasto no da.”",
@@ -448,8 +432,6 @@ const scenarios = [
     explanation: "La equivalencia de ganado menor excede el límite de 500 cabezas de ganado mayor.",
     foundation: "Fracción IV: Superficie necesaria para mantener hasta quinientas cabezas de ganado mayor o su equivalencia de ganado menor."
   },
-
-  // --- Explotación continua: no más de 2 años sin explotar salvo fuerza mayor ---
   {
     id: 14, name: "Rancho El Silencio", emoji: "⏳",
     character: "👨‍🌾 “Comisario, la verdad hace tres años que no sembramos nada aquí. No hay excusa, simplemente lo dejamos así.”",
@@ -482,8 +464,6 @@ const scenarios = [
     explanation: "Superó los dos años sin explotación y no acreditó la causa de fuerza mayor alegada, por lo que pierde su calidad de inafectable.",
     foundation: "...a menos que existan causas de fuerza mayor que lo impidan, debidamente acreditadas."
   },
-
-  // --- Propiedad nacional en reforestación ---
   {
     id: 18, name: "Ladera El Pinar", emoji: "🌳",
     character: "🌲 “Buenas, comisario. Este terreno es propiedad de la nación y está metido en un programa oficial de reforestación desde hace dos años.”",
@@ -500,8 +480,6 @@ const scenarios = [
     explanation: "No se trata de propiedad nacional ni de un proceso oficial de reforestación conforme a la ley forestal, sino de un predio particular; por tanto no aplica la excepción.",
     foundation: "Las superficies de propiedad nacional sujetas a proceso de reforestación, conforme a la Ley o reglamentos forestales."
   },
-
-  // --- Parques nacionales y zonas protectoras ---
   {
     id: 20, name: "Cañón del Águila", emoji: "🏞️",
     character: "👮 “Bienvenido, comisario. Soy el guardabosques de este lugar; llevo aquí un año cuidándolo. Es un Parque Nacional decretado por el gobierno.”",
@@ -518,8 +496,6 @@ const scenarios = [
     explanation: "Al no existir decreto oficial que la declare parque nacional o zona protectora, no aplica la excepción, aunque así se le conozca coloquialmente.",
     foundation: "Los parques nacionales y las zonas protectoras."
   },
-
-  // --- Campos de investigación de Institutos Nacionales / Escuelas Técnicas oficiales ---
   {
     id: 22, name: "Estación El Roble", emoji: "🔬",
     character: "🧑‍🔬 “Comisario, estas parcelas pertenecen a un Instituto Nacional; aquí hacemos experimentos de nuevas semillas para todo el país.”",
@@ -536,8 +512,6 @@ const scenarios = [
     explanation: "No se trata de un campo oficial de un Instituto Nacional ni de una Escuela Técnica Agropecuaria oficial, sino de una iniciativa particular; no aplica la excepción.",
     foundation: "Las extensiones que se requieren para los campos de investigación y experimentación de los Institutos Nacionales y Escuelas Técnicas Agropecuarias oficiales."
   },
-
-  // --- Cauces, vasos y zonas federales propiedad de la Nación ---
   {
     id: 24, name: "Vega del Río Hondo", emoji: "💧",
     character: "🗺️ “Comisario, este tramo es el cauce mismo del río, zona federal, propiedad de la nación. Aquí no hay dueño particular que valga.”",
@@ -554,8 +528,6 @@ const scenarios = [
     explanation: "Al tratarse de propiedad particular colindante y no del cauce, vaso o zona federal misma, no aplica la excepción de inafectabilidad.",
     foundation: "Los cauces de las corrientes, los vasos y las zonas federales, propiedad de la Nación."
   },
-
-  // --- Variante extra Fracción I con humedad ---
   {
     id: 26, name: "Ciénega El Junco", emoji: "🌾",
     character: "👨‍🌾 “Comisario, esto es tierra de humedad, no de riego, pero buena: unas 95 hectáreas, y siempre dando cosecha.”",
@@ -566,17 +538,13 @@ const scenarios = [
   }
 ];
 
-// Paleta de colores para variar las tarjetas del mapa
 const palette = ["#95d5b2","#ffd166","#f4a261","#e9c46a","#a7c957","#8ecae6","#ffb4a2","#b5e48c","#cdb4db","#f2cc8f","#90be6d","#f9c74f"];
 
-// ===================== ESTADO DEL JUEGO =====================
 let streak = 0;
 let caseCount = 0;
 let pool = [];
 let currentScenario = null;
-let soundOn = true;
 
-// ===================== FRASES Y PREMIOS =====================
 const frasesGraciosas = [
   "¿Si estudió las copias, comisario?",
   "Comisario, ¿ha pensado en cambiar de chamba?",
@@ -595,180 +563,6 @@ const premios = [
   "¡El pueblo le regala una silla de montar nueva, comisario!"
 ];
 
-// ===================== AUDIO (Web Audio API) =====================
-let actx = null;
-function getCtx() {
-  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-  return actx;
-}
-
-// Música de fondo retirada por preferencia del usuario (se percibía repetitiva).
-// Se deja stopMusic() como función vacía para no romper las llamadas existentes.
-function stopMusic() {}
-
-// --- Aplausos (ráfagas de ruido filtrado) ---
-function playApplause() {
-  if (!soundOn) return;
-  const ctx = getCtx();
-  for (let k = 0; k < 18; k++) {
-    const delay = Math.random() * 1.4;
-    const t = ctx.currentTime + delay;
-    const bufferSize = ctx.sampleRate * 0.05;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1);
-    const src = ctx.createBufferSource();
-    src.buffer = buffer;
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.value = 1500;
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.linearRampToValueAtTime(0.18, t + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
-    src.connect(filter).connect(gain).connect(ctx.destination);
-    src.start(t);
-  }
-}
-
-// --- Pólvora / fuegos artificiales (silbido + explosión) ---
-function playFirework() {
-  if (!soundOn) return;
-  const ctx = getCtx();
-  const t = ctx.currentTime;
-  // silbido ascendente
-  const osc = ctx.createOscillator();
-  const g1 = ctx.createGain();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(400, t);
-  osc.frequency.exponentialRampToValueAtTime(1400, t + 0.4);
-  g1.gain.setValueAtTime(0.06, t);
-  g1.gain.linearRampToValueAtTime(0.0001, t + 0.42);
-  osc.connect(g1).connect(ctx.destination);
-  osc.start(t);
-  osc.stop(t + 0.45);
-
-  // explosion (ruido)
-  const t2 = t + 0.42;
-  const bufferSize = ctx.sampleRate * 0.5;
-  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) {
-    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
-  }
-  const src = ctx.createBufferSource();
-  src.buffer = buffer;
-  const filter = ctx.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.setValueAtTime(3000, t2);
-  filter.frequency.exponentialRampToValueAtTime(300, t2 + 0.5);
-  const g2 = ctx.createGain();
-  g2.gain.setValueAtTime(0.35, t2);
-  g2.gain.exponentialRampToValueAtTime(0.0001, t2 + 0.5);
-  src.connect(filter).connect(g2).connect(ctx.destination);
-  src.start(t2);
-}
-
-function playCelebration() {
-  playFirework();
-  setTimeout(playFirework, 350);
-  setTimeout(playFirework, 800);
-  playApplause();
-}
-
-function playCorrectBlip() {
-  if (!soundOn) return;
-  const ctx = getCtx();
-  const t = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'triangle';
-  osc.frequency.setValueAtTime(523.25, t);
-  osc.frequency.setValueAtTime(659.25, t + 0.1);
-  gain.gain.setValueAtTime(0.08, t);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(t);
-  osc.stop(t + 0.25);
-}
-
-function playWrongBuzz() {
-  if (!soundOn) return;
-  const ctx = getCtx();
-  const t = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(180, t);
-  osc.frequency.exponentialRampToValueAtTime(70, t + 0.4);
-  gain.gain.setValueAtTime(0.1, t);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(t);
-  osc.stop(t + 0.45);
-}
-
-// --- Sonido de derrota (trombón "wah-wah-wah-waaah" descendente, tipo misión fallida) ---
-function playDefeat() {
-  if (!soundOn) return;
-  const ctx = getCtx();
-  const startT = ctx.currentTime;
-  const notes = [392.00, 349.23, 311.13, 261.63]; // G4 F4 Eb4 C4 descendente
-  notes.forEach((freq, i) => {
-    const t = startT + i * 0.28;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(freq, t);
-    osc.frequency.exponentialRampToValueAtTime(freq * 0.92, t + 0.25);
-    gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.linearRampToValueAtTime(0.12, t + 0.03);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + (i === notes.length - 1 ? 0.6 : 0.26));
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(t);
-    osc.stop(t + (i === notes.length - 1 ? 0.62 : 0.28));
-  });
-}
-
-// --- Sonido al elegir una ubicación (pisada sobre tierra + clic seco) ---
-function playSelect() {
-  if (!soundOn) return;
-  const ctx = getCtx();
-  const t = ctx.currentTime;
-
-  // Pisada (ruido grave filtrado)
-  const bufferSize = Math.floor(ctx.sampleRate * 0.08);
-  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) {
-    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
-  }
-  const src = ctx.createBufferSource();
-  src.buffer = buffer;
-  const filter = ctx.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.value = 400;
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.18, t);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
-  src.connect(filter).connect(gain).connect(ctx.destination);
-  src.start(t);
-
-  // Clic seco (espuela / confirmación)
-  const t2 = t + 0.05;
-  const osc = ctx.createOscillator();
-  const gain2 = ctx.createGain();
-  osc.type = 'square';
-  osc.frequency.setValueAtTime(700, t2);
-  osc.frequency.exponentialRampToValueAtTime(300, t2 + 0.08);
-  gain2.gain.setValueAtTime(0.06, t2);
-  gain2.gain.exponentialRampToValueAtTime(0.0001, t2 + 0.09);
-  osc.connect(gain2).connect(ctx.destination);
-  osc.start(t2);
-  osc.stop(t2 + 0.1);
-}
-
-// ===================== LOGICA DEL JUEGO =====================
 function shuffle(array) {
   const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -816,7 +610,6 @@ function renderMap() {
 }
 
 function openScenario(idx) {
-  playSelect();
   currentScenario = pool[idx];
   pool.splice(idx, 1);
   document.getElementById('character').textContent = currentScenario.character;
@@ -834,12 +627,9 @@ function answer(playerSaysAfectable) {
 
   if (correct) {
     streak++;
-    playCorrectBlip();
     title.innerHTML = '<span class="correcto">✅ DICTAMEN CORRECTO</span>';
     msg.textContent = currentScenario.explanation;
   } else {
-    stopMusic();
-    playWrongBuzz();
     title.innerHTML = '<span class="incorrecto">❌ DICTAMEN INCORRECTO</span>';
     msg.textContent = currentScenario.isAfectable
       ? "Debía considerarse AFECTABLE. " + currentScenario.explanation
@@ -867,13 +657,9 @@ function answer(playerSaysAfectable) {
   showScreen('result');
 }
 
-function nextCase() {
-  // El onclick de nextBtn se reasigna dinámicamente en answer()
-}
+function nextCase() {}
 
 function showGameOver() {
-  stopMusic();
-  playDefeat();
   const frase = frasesGraciosas[Math.floor(Math.random() * frasesGraciosas.length)];
   document.getElementById('fraseGraciosa').textContent = frase;
   document.getElementById('gameoverMsg').innerHTML =
@@ -882,21 +668,17 @@ function showGameOver() {
 }
 
 function showVictory() {
-  stopMusic();
   const premio = premios[Math.floor(Math.random() * premios.length)];
   document.getElementById('premioBox').textContent = premio;
   showScreen('final');
   launchCelebration();
-  playCelebration();
 }
 
-// ===================== CELEBRACION VISUAL =====================
 function launchCelebration() {
   const layer = document.getElementById('fxLayer');
   layer.innerHTML = '';
   const colors = ["#e63946","#f4a261","#e9c46a","#2a9d8f","#95d5b2","#a7c957","#8ecae6","#cdb4db"];
 
-  // Confeti
   for (let i = 0; i < 60; i++) {
     const c = document.createElement('div');
     c.className = 'confetti';
@@ -907,7 +689,6 @@ function launchCelebration() {
     layer.appendChild(c);
   }
 
-  // Globos
   for (let i = 0; i < 10; i++) {
     const b = document.createElement('div');
     b.className = 'globo';
@@ -918,7 +699,6 @@ function launchCelebration() {
     layer.appendChild(b);
   }
 
-  // Pólvora / fuegos artificiales (destellos radiales)
   function burst() {
     const cx = 15 + Math.random() * 70;
     const cy = 15 + Math.random() * 50;
